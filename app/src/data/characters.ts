@@ -1,0 +1,88 @@
+import { Character } from '../types/game';
+
+export const CHARACTERS: Character[] = [
+  {
+    id: 'gustave',
+    name: 'Gustave',
+    title: 'The Engineer',
+    role: 'Balanced Trader',
+    description: 'A resourceful engineer with a mechanical arm. Reliable, methodical, and unflinching under pressure.',
+    weapon: 'Mechanical Gauntlet',
+    color: '#8b7635',
+    accentColor: '#c9a959',
+    stats: { precision: 7, might: 6, agility: 5, defense: 7, luck: 5 },
+    abilities: ['Steady Hand', 'Calibrated Strike', 'Iron Resolve'],
+    loreQuote: '"Every mechanism has a rhythm. Markets are no different."',
+  },
+  {
+    id: 'maelle',
+    name: 'Maelle',
+    title: 'The Fencer',
+    role: 'Aggressive Scalper',
+    description: 'The youngest expeditioner. Quick, fierce, and switches stances like a true duelist.',
+    weapon: 'Rapier of Stances',
+    color: '#c41e3a',
+    accentColor: '#e85d75',
+    stats: { precision: 5, might: 8, agility: 9, defense: 3, luck: 5 },
+    abilities: ['Stance Switch', 'Riposte Strike', 'Crimson Lunge'],
+    loreQuote: '"Don\'t wait for the perfect moment. Create it."',
+  },
+  {
+    id: 'lune',
+    name: 'Lune',
+    title: 'The Mage',
+    role: 'Technical Analyst',
+    description: 'A brilliant scholar who sees patterns where others see chaos. Her Stains reveal hidden truths.',
+    weapon: 'Arcane Tome',
+    color: '#7c3aed',
+    accentColor: '#a78bfa',
+    stats: { precision: 9, might: 5, agility: 4, defense: 4, luck: 8 },
+    abilities: ['Elemental Stain', 'Pattern Read', 'Arcane Forecast'],
+    loreQuote: '"Numbers don\'t lie. But they do whisper in riddles."',
+  },
+  {
+    id: 'sciel',
+    name: 'Sciel',
+    title: 'The Reaper',
+    role: 'Swing Trader',
+    description: 'A calm farmer turned teacher. Patient with her scythe and her cards — Foretell stacks devastate.',
+    weapon: 'Harvest Scythe & Cards',
+    color: '#0d9488',
+    accentColor: '#5eead4',
+    stats: { precision: 7, might: 7, agility: 3, defense: 6, luck: 7 },
+    abilities: ['Foretell', 'Harvest Strike', 'Patience of Fields'],
+    loreQuote: '"The harvest comes to those who wait. So does ruin."',
+  },
+  {
+    id: 'verso',
+    name: 'Verso',
+    title: 'The Immortal',
+    role: 'Veteran Trader',
+    description: 'Immortal and world-weary. His Perfection ranks make every hit count more.',
+    weapon: 'Dual Blades',
+    color: '#e8d5a3',
+    accentColor: '#f5f0e3',
+    stats: { precision: 8, might: 8, agility: 7, defense: 5, luck: 2 },
+    abilities: ['Perfection', 'Eternal Strike', 'Weary Wisdom'],
+    loreQuote: '"I have seen every pattern the market can offer. And still it surprises me."',
+  },
+  {
+    id: 'monoco',
+    name: 'Monoco',
+    title: 'The Gestral',
+    role: 'Adaptive Trader',
+    description: 'A shapeshifting Gestral who adapts to any market condition. His Bestial Wheel spins with possibility.',
+    weapon: 'Bestial Wheel',
+    color: '#f59e0b',
+    accentColor: '#fbbf24',
+    stats: { precision: 6, might: 6, agility: 6, defense: 6, luck: 6 },
+    abilities: ['Shapeshift', 'Bestial Spin', 'Market Mirror'],
+    loreQuote: '"Why be one thing when the market demands you be everything?"',
+  },
+];
+
+export const CHARACTER_MAP = Object.fromEntries(CHARACTERS.map(c => [c.id, c]));
+
+export function getCharacter(id: string): Character | undefined {
+  return CHARACTER_MAP[id];
+}
