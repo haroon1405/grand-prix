@@ -5,23 +5,17 @@ import { ASSETS } from '../../data/assets';
 
 export function TickerRibbon() {
   const markets = useMarketStore((s) => s.markets);
-  const setSelectedSymbol = useMarketStore((s) => s.setSelectedSymbol);
-  const setPage = useUIStore((s) => s.setPage);
-
-  const items = [...ASSETS, ...ASSETS];
+  const items = [...ASSETS, ...ASSETS, ...ASSETS];
 
   return (
-    <div className="w-full overflow-hidden bg-navy/40 border-b border-ash/10 h-7 shrink-0">
+    <div
+      className="w-full overflow-hidden h-full flex items-center"
+      style={{ background: 'rgba(5,6,8,0.95)' }}
+    >
       <motion.div
-        className="flex items-center gap-6 h-full whitespace-nowrap"
-        animate={{ x: [0, -50 * ASSETS.length] }}
-        transition={{
-          x: {
-            duration: 40,
-            repeat: Infinity,
-            ease: 'linear',
-          },
-        }}
+        className="flex items-center gap-8 whitespace-nowrap"
+        animate={{ x: [0, -60 * ASSETS.length] }}
+        transition={{ x: { duration: 50, repeat: Infinity, ease: 'linear' } }}
       >
         {items.map((asset, i) => {
           const market = markets[asset.symbol];
@@ -32,16 +26,38 @@ export function TickerRibbon() {
             <button
               key={`${asset.symbol}-${i}`}
               onClick={() => {
-                setSelectedSymbol(asset.symbol);
-                setPage('expedition');
+                useUIStore.getState().setBattleSymbol(asset.symbol);
+                useUIStore.getState().setPage('battle');
               }}
-              className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity flex-shrink-0"
+              className="flex items-center gap-2 cursor-pointer flex-shrink-0 group"
+              style={{ background: 'transparent', border: 'none', outline: 'none', padding: '0' }}
             >
-              <span className="text-[10px] font-display text-ivory-muted">{asset.gameName}</span>
-              <span className="font-tabular text-[11px] text-ivory">{market.lastPrice.toFixed(2)}</span>
-              <span className={`font-tabular text-[10px] ${isPositive ? 'text-teal' : 'text-crimson'}`}>
+              <div className="w-1 h-1 rounded-full flex-shrink-0" style={{ backgroundColor: asset.iconColor }} />
+              <span
+                style={{
+                  fontFamily: 'var(--font-serif)',
+                  fontSize: '0.65rem',
+                  color: 'rgba(224,216,200,0.45)',
+                  letterSpacing: '0.03em',
+                  transition: 'color 0.15s',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-exp-gold)')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(224,216,200,0.45)')}
+              >
+                {asset.gameName}
+              </span>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'rgba(224,216,200,0.7)' }}>
+                {market.lastPrice.toFixed(2)}
+              </span>
+              <span style={{
+                fontFamily: 'var(--font-mono)', fontSize: '0.6rem',
+                color: isPositive ? 'var(--color-teal)' : 'var(--color-crimson)',
+              }}>
                 {isPositive ? '+' : ''}{market.changePercent.toFixed(2)}%
               </span>
+
+              {/* Separator */}
+              <span style={{ color: 'rgba(196,164,109,0.15)', fontSize: '0.6rem' }}>·</span>
             </button>
           );
         })}

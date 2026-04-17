@@ -16,6 +16,9 @@ export interface Position {
   takeProfit?: number;
   openTime: number;
   closeTime?: number;
+  expiryTime?: number;
+  duration?: number;
+  durationUnit?: string;
   status: PositionStatus;
   characterId: string;
 }

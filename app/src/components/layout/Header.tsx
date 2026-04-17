@@ -1,125 +1,173 @@
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Wallet, TrendingUp, TrendingDown, Shield, Heart, X, Wifi, WifiOff } from 'lucide-react';
+import { Wifi, WifiOff, X, Volume2, VolumeX, Activity, Award } from 'lucide-react';
 import { useMarketStore } from '../../store/marketStore';
-import { useTradingStore } from '../../store/tradingStore';
 import { useUIStore } from '../../store/uiStore';
+import { useSettingsStore } from '../../store/settingsStore';
+import { useProgressionStore } from '../../store/progressionStore';
+import { useTradingStore } from '../../store/tradingStore';
 import { MOOD_DESCRIPTIONS } from '../../data/lore';
-import { getCharacter } from '../../data/characters';
 
 export function Header() {
   const { globalMood, dataMode } = useMarketStore();
-  const { capital, totalPnl, exposure, resolve, positions } = useTradingStore();
-  const { selectedCharacter, notifications, dismissNotification } = useUIStore();
+  const { notifications, dismissNotification } = useUIStore();
+  const { soundEnabled, toggleSound } = useSettingsStore();
+  const { rankLabel } = useProgressionStore();
+  const capital = useTradingStore((s) => s.capital);
   const mood = MOOD_DESCRIPTIONS[globalMood];
-  const character = getCharacter(selectedCharacter);
 
-  const isProfitable = totalPnl >= 0;
+  const [currentTime, setCurrentTime] = useState(new Date());
+  useEffect(() => {
+    const id = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const moodColor =
+    globalMood === 'calm' ? '#7c9bb5'
+    : globalMood === 'stirring' ? '#c4a46d'
+    : globalMood === 'volatile' ? '#c45e3a'
+    : globalMood === 'tempest' ? '#c41e3a'
+    : '#7c3aed';
 
   return (
-    <header className="shrink-0 h-12 bg-navy/60 border-b border-ash/20 flex items-center gap-3 px-3 backdrop-blur-sm overflow-hidden">
-      {/* Mood indicator */}
-      <div className="flex items-center gap-2 shrink-0">
-        <div
-          className="w-2 h-2 rounded-full animate-pulse-glow shrink-0"
+    <header
+      className="col-span-3 flex items-center justify-between px-5"
+      style={{
+        borderBottom: '1px solid rgba(196,164,109,0.15)',
+        background: 'rgba(5,6,8,0.95)',
+      }}
+    >
+      {/* Left: Branding */}
+      <div className="flex flex-col">
+        <h1
+          className="text-glow"
           style={{
-            backgroundColor:
-              globalMood === 'calm' ? '#7c9bb5'
-              : globalMood === 'stirring' ? '#c9a959'
-              : globalMood === 'volatile' ? '#c45e3a'
-              : globalMood === 'tempest' ? '#c41e3a'
-              : '#7c3aed',
+            fontFamily: 'var(--font-serif)',
+            fontSize: '1.25rem',
+            fontWeight: 400,
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+            color: 'var(--color-exp-gold)',
+            lineHeight: 1.1,
           }}
-        />
-        <span className="text-[11px] font-display text-ivory-muted tracking-wider whitespace-nowrap hidden md:inline">
-          {mood.title}
-        </span>
+        >
+          Expedition 33
+        </h1>
+        <p className="exp-label" style={{ marginTop: '1px' }}>
+          {mood.title} · Volatility Rift Protocol
+        </p>
       </div>
 
-      {character && (
-        <span className="text-[10px] text-ivory-muted/60 font-display whitespace-nowrap hidden lg:inline">
-          as <span style={{ color: character.accentColor }}>{character.name}</span>
-        </span>
-      )}
+      {/* Center: Mood + data mode + notifications */}
+      <div className="flex items-center gap-3 flex-1 justify-center">
+        {/* Mood indicator */}
+        <div className="flex items-center gap-1.5">
+          <div
+            className="w-1.5 h-1.5 rounded-full animate-pulse-glow"
+            style={{ backgroundColor: moodColor }}
+          />
+          <Activity size={10} style={{ color: moodColor }} />
+        </div>
 
-      {/* Data mode badge */}
-      <div className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-mono uppercase tracking-wider shrink-0 border ${
-        dataMode === 'live'
-          ? 'bg-teal/10 text-teal border-teal/20'
-          : dataMode === 'synthetic'
-          ? 'bg-gold/10 text-gold border-gold/20'
-          : 'bg-surface text-ivory-muted border-ash/20'
-      }`}>
-        {dataMode === 'live' ? <Wifi size={9} /> : <WifiOff size={9} />}
-        <span>{dataMode === 'live' ? 'LIVE' : dataMode === 'synthetic' ? 'SIM' : '...'}</span>
+        {/* Data mode badge */}
+        <div
+          className="flex items-center gap-1 px-2 py-0.5 border text-[9px] font-mono uppercase tracking-widest"
+          style={{
+            background: dataMode === 'live' ? 'rgba(13,148,136,0.08)' : 'rgba(196,164,109,0.08)',
+            borderColor: dataMode === 'live' ? 'rgba(13,148,136,0.3)' : 'rgba(196,164,109,0.3)',
+            color: dataMode === 'live' ? 'var(--color-teal)' : 'var(--color-exp-gold)',
+          }}
+        >
+          {dataMode === 'live' ? <Wifi size={8} /> : <WifiOff size={8} />}
+          <span>{dataMode === 'live' ? 'LIVE' : dataMode === 'synthetic' ? 'SIM' : '...'}</span>
+        </div>
+
+        {/* Notifications */}
+        <AnimatePresence>
+          {notifications.slice(0, 2).map((n) => (
+            <motion.div
+              key={n.id}
+              initial={{ opacity: 0, x: 10, scale: 0.9 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: 10, scale: 0.9 }}
+              className="flex items-center gap-1.5 px-2 py-0.5 border text-[10px] max-w-[200px]"
+              style={{
+                fontFamily: 'var(--font-serif)',
+                background: n.type === 'success' ? 'rgba(13,148,136,0.08)'
+                  : n.type === 'danger' ? 'rgba(196,30,58,0.08)'
+                  : n.type === 'lore' ? 'rgba(124,58,237,0.08)'
+                  : 'rgba(255,255,255,0.04)',
+                borderColor: n.type === 'success' ? 'rgba(13,148,136,0.3)'
+                  : n.type === 'danger' ? 'rgba(196,30,58,0.3)'
+                  : n.type === 'lore' ? 'rgba(124,58,237,0.3)'
+                  : 'rgba(196,164,109,0.2)',
+                color: n.type === 'success' ? 'var(--color-teal)'
+                  : n.type === 'danger' ? 'var(--color-crimson)'
+                  : n.type === 'lore' ? 'var(--color-violet)'
+                  : 'var(--color-ivory-muted)',
+              }}
+            >
+              <span className="truncate">{n.message}</span>
+              <button onClick={() => dismissNotification(n.id)} className="shrink-0 cursor-pointer opacity-60 hover:opacity-100">
+                <X size={8} />
+              </button>
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
 
-      {/* Spacer */}
-      <div className="flex-1" />
-
-      {/* Resources — wrap into a compact row */}
-      <div className="flex items-center gap-3 shrink-0">
-        <div className="flex items-center gap-1">
-          <Wallet size={13} className="text-gold" />
-          <span className="font-tabular text-[12px] text-gold">
-            {capital.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </span>
-        </div>
-
-        <div className="flex items-center gap-1">
-          {isProfitable ? (
-            <TrendingUp size={13} className="text-emerald" />
-          ) : (
-            <TrendingDown size={13} className="text-crimson" />
-          )}
-          <span className={`font-tabular text-[12px] ${isProfitable ? 'text-emerald' : 'text-crimson'}`}>
-            {isProfitable ? '+' : ''}{totalPnl.toFixed(2)}
-          </span>
-        </div>
-
-        <div className="flex items-center gap-1 hidden sm:flex">
-          <Shield size={13} className={exposure > 0.7 ? 'text-crimson' : 'text-ivory-muted'} />
-          <span className={`font-tabular text-[11px] ${exposure > 0.7 ? 'text-crimson' : 'text-ivory-muted'}`}>
-            {(exposure * 100).toFixed(0)}%
-          </span>
-        </div>
-
-        <div className="flex items-center gap-1 hidden sm:flex">
-          <Heart size={13} className={resolve < 30 ? 'text-crimson' : 'text-teal'} />
-          <span className={`font-tabular text-[11px] ${resolve < 30 ? 'text-crimson' : 'text-teal'}`}>
-            {resolve.toFixed(0)}
-          </span>
-        </div>
-
-        {positions.length > 0 && (
-          <span className="text-[10px] text-ivory-muted bg-surface px-1.5 py-0.5 rounded-full whitespace-nowrap">
-            {positions.length} open
-          </span>
-        )}
-      </div>
-
-      {/* Notifications */}
-      <AnimatePresence>
-        {notifications.slice(0, 1).map((n) => (
-          <motion.div
-            key={n.id}
-            initial={{ opacity: 0, x: 20, scale: 0.9 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: 20, scale: 0.9 }}
-            className={`
-              flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-display shrink-0 max-w-[200px]
-              ${n.type === 'success' ? 'bg-teal/10 text-teal border border-teal/20'
-                : n.type === 'danger' ? 'bg-crimson/10 text-crimson border border-crimson/20'
-                : n.type === 'lore' ? 'bg-violet/10 text-violet border border-violet/20'
-                : 'bg-surface text-ivory-muted border border-ash/20'}
-            `}
+      {/* Right: Stats + controls */}
+      <div className="flex items-center gap-4">
+        {/* Balance */}
+        <div className="flex flex-col items-end">
+          <span className="exp-label">Oils</span>
+          <span
+            className="font-tabular text-sm"
+            style={{ color: 'var(--color-exp-gold)' }}
           >
-            <span className="truncate">{n.message}</span>
-            <button onClick={() => dismissNotification(n.id)} className="cursor-pointer shrink-0">
-              <X size={10} />
-            </button>
-          </motion.div>
-        ))}
-      </AnimatePresence>
+            {capital.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </span>
+        </div>
+
+        {/* Rank */}
+        <div
+          className="flex items-center gap-1.5 px-2 py-0.5 border text-[9px]"
+          style={{
+            fontFamily: 'var(--font-serif)',
+            background: 'rgba(255,255,255,0.04)',
+            borderColor: 'rgba(196,164,109,0.2)',
+            color: 'var(--color-exp-gold)',
+          }}
+        >
+          <Award size={9} />
+          <span>{rankLabel}</span>
+        </div>
+
+        {/* Time */}
+        <div className="text-right">
+          <p
+            className="font-mono text-[10px]"
+            style={{ color: 'rgba(224,216,200,0.5)' }}
+          >
+            {currentTime.toLocaleTimeString()}
+          </p>
+          <p
+            className="font-mono text-[8px]"
+            style={{ color: 'rgba(224,216,200,0.25)' }}
+          >
+            Year 33, Day {Math.floor((Date.now() / 86400000) % 365)}
+          </p>
+        </div>
+
+        {/* Sound toggle */}
+        <button
+          onClick={toggleSound}
+          className="cursor-pointer transition-opacity hover:opacity-100"
+          style={{ color: 'var(--color-ivory-muted)', opacity: 0.5 }}
+        >
+          {soundEnabled ? <Volume2 size={13} /> : <VolumeX size={13} />}
+        </button>
+      </div>
     </header>
   );
 }
